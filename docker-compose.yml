@@ -1,0 +1,40 @@
+services:
+
+  api:
+    build:
+      context: ./backend
+    container_name: cloudpilot-api
+
+    ports:
+      - "8000:8000"
+
+    depends_on:
+      - postgres
+      - redis
+
+  postgres:
+    image: postgres:15-alpine
+
+    container_name: cloudpilot-postgres
+
+    environment:
+      POSTGRES_USER: cloudpilot
+      POSTGRES_PASSWORD: cloudpilot
+      POSTGRES_DB: cloudpilot
+
+    ports:
+      - "5432:5432"
+
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  redis:
+    image: redis:7-alpine
+
+    container_name: cloudpilot-redis
+
+    ports:
+      - "6379:6379"
+
+volumes:
+  postgres_data:
