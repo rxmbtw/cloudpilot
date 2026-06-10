@@ -128,3 +128,28 @@ def get_user(
         db,
         user_id
     )
+
+@app.put("/users/{user_id}")
+def update_user(
+    user_id: int,
+    user: UserCreate,
+    db: Session = Depends(get_db)
+):
+
+    return crud.update_user(
+        db,
+        user_id,
+        user
+    )
+
+@app.delete("/users/{user_id}")
+def delete_user(
+    user_id: int,
+    db: Session = Depends(get_db)
+):
+
+    return crud.delete_user(
+        db,
+        user_id
+    )
+
