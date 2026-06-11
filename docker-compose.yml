@@ -2,11 +2,13 @@ services:
 
   grafana:
     image: grafana/grafana
-
     container_name: cloudpilot-grafana
 
     ports:
       - "3000:3000"
+
+    volumes:
+      - grafana-data:/var/lib/grafana
 
     depends_on:
       - prometheus
@@ -61,12 +63,12 @@ services:
 
     volumes:
       - ./monitoring/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus-data:/prometheus
 
     depends_on:
       - api
 
-    
-
 volumes:
   postgres_data:
-
+  prometheus-data:
+  grafana-data:

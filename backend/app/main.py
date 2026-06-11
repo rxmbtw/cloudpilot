@@ -1,64 +1,92 @@
-import importlib
-try:
-    fastapi_mod = importlib.import_module("fastapi")
-    Depends = fastapi_mod.Depends
-    FastAPI = fastapi_mod.FastAPI
-except Exception:  # pragma: no cover - fallback when fastapi is unavailable (lint/runtime safety)
-    # Minimal no-op fallbacks so the module can be imported when fastapi isn't installed.
-    def Depends(x=None):
-        return x
+from fastapi import (
+    FastAPI,
+    Depends,
+    HTTPException
+)
 
-    class FastAPI:  # minimal stub
-        def __init__(self, *args, **kwargs):
-            pass
+from app.security import verify_token
+from app.models.user import User
+
+from app.database import (
+    Base,
+    engine,
+    get_db
+)
+
 from sqlalchemy import text
+from sqlalchemy.orm import Session
+from prometheus_fastapi_instrumentator import Instrumentator
 
-from app.database import Base, engine, get_db
+from fastapi.security import OAuth2PasswordBearer
+oauth2_scheme = OAuth2PasswordBearer(
+    tokenUrl="login"
+)
+
+def get_current_user(
+    token: str = Depends(oauth2_scheme),
+    db: Session = Depends(get_db)
+):
+
+    email = verify_token(token)
+
+    user = db.query(User).filter(
+        User.email == email
+    ).first()
+
+    if not user:
+
+        raise HTTPException(
+            status_code=401,
+            detail="User not found"
+        )
+
+    return user
+
+
+
+
+
 from app.cache import redis_client
 
-try:
-    Instrumentator = importlib.import_module("prometheus_fastapi_instrumentator").Instrumentator
-except Exception:  # pragma: no cover - fallback when package is unavailable
-    class Instrumentator:  # minimal no-op fallback for linting/runtime safety
-        def __init__(self, *args, **kwargs):
-            pass
+from app.schemas.user import (
+    UserCreate,
+    UserResponse,
+    UserLogin,
+    Token
+)
 
-        def instrument(self, app):
-            return self
-
-        def expose(self, app, **kwargs):
-            return None
-
-from app.models.user import User
-from app.schemas.user import UserCreate, UserResponse
-from app import crud
-from sqlalchemy.orm import Session
-
-from app.schemas.user import UserCreate
-from app.schemas.user import UserResponse
+from app.security import create_access_token
 
 from app import crud
+
 
 app = FastAPI(
     title="CloudPilot API",
     version="0.1.0"
 )
 
+Base.metadata.create_all(bind=engine)
+
 Instrumentator().instrument(app).expose(app)
+
 
 @app.get("/")
 def root():
+
     return {
         "project": "CloudPilot",
         "status": "running",
         "version": "0.1.0"
     }
 
+
 @app.get("/health")
 def health():
+
     return {
         "status": "healthy"
     }
+
 
 @app.get("/db-health")
 def db_health():
@@ -99,6 +127,7 @@ def cache_health():
             "error": str(e)
         }
 
+
 @app.post("/users", response_model=UserResponse)
 def create_user(
     user: UserCreate,
@@ -110,12 +139,15 @@ def create_user(
         user
     )
 
+
 @app.get("/users")
 def get_users(
+    current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
 
     return crud.get_users(db)
+
 
 @app.get("/users/{user_id}")
 def get_user(
@@ -127,6 +159,7 @@ def get_user(
         db,
         user_id
     )
+
 
 @app.put("/users/{user_id}")
 def update_user(
@@ -141,6 +174,7 @@ def update_user(
         user
     )
 
+
 @app.delete("/users/{user_id}")
 def delete_user(
     user_id: int,
@@ -151,4 +185,38 @@ def delete_user(
         db,
         user_id
     )
+
+
+@app.post(
+    "/login",
+    response_model=Token
+)
+def login(
+    user: UserLogin,
+    db: Session = Depends(get_db)
+):
+
+    db_user = crud.authenticate_user(
+        db,
+        user.email,
+        user.password
+    )
+
+    if not db_user:
+
+        raise HTTPException(
+            status_code=401,
+            detail="Invalid credentials"
+        )
+
+    access_token = create_access_token(
+        {
+            "sub": db_user.email
+        }
+    )
+
+    return {
+        "access_token": access_token,
+        "token_type": "bearer"
+    }
 
