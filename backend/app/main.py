@@ -140,7 +140,10 @@ def create_user(
     )
 
 
-@app.get("/users")
+@app.get(
+    "/users",
+    response_model=list[UserResponse]
+)
 def get_users(
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
@@ -149,11 +152,21 @@ def get_users(
     return crud.get_users(db)
 
 
-@app.get("/users/{user_id}")
+@app.get(
+    "/users/{user_id}",
+    response_model=UserResponse
+)
 def get_user(
     user_id: int,
+    current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
+
+    if current_user.id != user_id:
+        raise HTTPException(
+            status_code=403,
+            detail="Not authorized"
+        )
 
     return crud.get_user(
         db,
@@ -161,12 +174,22 @@ def get_user(
     )
 
 
-@app.put("/users/{user_id}")
+@app.put(
+    "/users/{user_id}",
+    response_model=UserResponse
+)
 def update_user(
     user_id: int,
     user: UserCreate,
+    current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
+
+    if current_user.id != user_id:
+        raise HTTPException(
+            status_code=403,
+            detail="Not authorized"
+        )
 
     return crud.update_user(
         db,
@@ -178,8 +201,15 @@ def update_user(
 @app.delete("/users/{user_id}")
 def delete_user(
     user_id: int,
+    current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
+
+    if current_user.id != user_id:
+        raise HTTPException(
+            status_code=403,
+            detail="Not authorized"
+        )
 
     return crud.delete_user(
         db,
