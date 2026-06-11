@@ -6,6 +6,7 @@ from fastapi import (
 
 from app.security import verify_token
 from app.models.user import User
+from app.security import require_admin
 
 from app.database import (
     Base,
@@ -127,6 +128,17 @@ def cache_health():
             "error": str(e)
         }
 
+@app.get(
+    "/admin/users",
+    response_model=list[UserResponse]
+)
+def admin_get_users(
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    require_admin(current_user)
+
+    return crud.get_users(db)
 
 @app.post("/users", response_model=UserResponse)
 def create_user(
@@ -241,7 +253,8 @@ def login(
 
     access_token = create_access_token(
         {
-            "sub": db_user.email
+            "sub": db_user.email,
+            "role": db_user.role
         }
     )
 
