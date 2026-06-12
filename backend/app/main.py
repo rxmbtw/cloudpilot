@@ -3,15 +3,29 @@ from fastapi import (
     Depends,
     HTTPException
 )
-from app.security import create_refresh_token
-from app.schemas.user import TokenResponse
-from app.security import verify_token
-from app.models.user import User
-from app.security import require_admin
-from app.rate_limit import rate_limit
-from app.logger import logger
+
 from fastapi import Request
 import time
+
+from app.security import (
+    verify_access_token,
+    verify_refresh_token,
+    create_access_token,
+    create_refresh_token
+)
+
+from app.schemas.user import TokenResponse
+from app.schemas.user import (
+    RefreshTokenRequest
+)
+
+from app.models.user import User
+from app.security import require_admin
+
+from app.rate_limit import rate_limit
+from app.logger import logger
+
+
 
 from app.database import (
     Base,
@@ -33,7 +47,7 @@ def get_current_user(
     db: Session = Depends(get_db)
 ):
 
-    email = verify_token(token)
+    email = verify_access_token(token)
 
     user = db.query(User).filter(
         User.email == email
@@ -61,7 +75,7 @@ from app.schemas.user import (
     Token
 )
 
-from app.security import create_access_token
+
 
 from app import crud
 
@@ -322,5 +336,25 @@ def login(
     return {
         "access_token": access_token,
         "refresh_token": refresh_token,         
+        "token_type": "bearer"
+    }
+
+@app.post("/refresh")
+def refresh_token(
+    token_data: RefreshTokenRequest
+):
+
+    email = verify_refresh_token(
+        token_data.refresh_token
+    )
+
+    access_token = create_access_token(
+        {
+            "sub": email
+        }
+    )
+
+    return {
+        "access_token": access_token,
         "token_type": "bearer"
     }

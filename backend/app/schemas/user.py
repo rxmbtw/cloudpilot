@@ -36,3 +36,7 @@ class TokenResponse(BaseModel):
     refresh_token: str
 
     token_type: str
+
+class RefreshTokenRequest(BaseModel):
+
+    refresh_token: str

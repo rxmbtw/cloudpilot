@@ -52,9 +52,10 @@ def create_access_token(data: dict):
         minutes=ACCESS_TOKEN_EXPIRE_MINUTES
     )
 
-    to_encode.update(
-        {"exp": expire}
-    )
+    to_encode.update({
+        "exp": expire,
+        "type": "access"
+    })
 
     return jwt.encode(
         to_encode,
@@ -98,12 +99,67 @@ def create_refresh_token(data: dict):
         days=7
     )
 
-    to_encode.update(
-        {"exp": expire}
-    )
+    to_encode.update({
+        "exp": expire,
+       "type": "refresh"
+    })
 
     return jwt.encode(
         to_encode,
         SECRET_KEY,
         algorithm=ALGORITHM
     )
+
+
+def verify_access_token(token: str):
+
+    try:
+
+        payload = jwt.decode(
+            token,
+            SECRET_KEY,
+            algorithms=[ALGORITHM]
+        )
+
+        if payload.get("type") != "access":
+
+            raise HTTPException(
+                status_code=401,
+                detail="Invalid access token"
+            )
+
+        return payload.get("sub")
+
+    except JWTError:
+
+        raise HTTPException(
+            status_code=401,
+            detail="Invalid access token"
+        )
+
+
+def verify_refresh_token(token: str):
+
+    try:
+
+        payload = jwt.decode(
+            token,
+            SECRET_KEY,
+            algorithms=[ALGORITHM]
+        )
+
+        if payload.get("type") != "refresh":
+
+            raise HTTPException(
+                status_code=401,
+                detail="Invalid refresh token"
+            )
+
+        return payload.get("sub")
+
+    except JWTError:
+
+        raise HTTPException(
+            status_code=401,
+            detail="Invalid refresh token"
+        )
