@@ -3,7 +3,8 @@ from fastapi import (
     Depends,
     HTTPException
 )
-
+from app.security import create_refresh_token
+from app.schemas.user import TokenResponse
 from app.security import verify_token
 from app.models.user import User
 from app.security import require_admin
@@ -272,7 +273,7 @@ def delete_user(
 
 @app.post(
     "/login",
-    response_model=Token,
+    response_model=TokenResponse,
     dependencies=[Depends(rate_limit)]
 )
 def login(
@@ -307,6 +308,12 @@ def login(
             "role": db_user.role
         }
     )
+    
+    refresh_token = create_refresh_token(
+        {
+            "sub": db_user.email
+        }
+    )
 
     logger.info(
         f"Successful login: {user.email}"
@@ -314,5 +321,6 @@ def login(
 
     return {
         "access_token": access_token,
+        "refresh_token": refresh_token,         
         "token_type": "bearer"
     }
