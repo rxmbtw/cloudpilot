@@ -7,6 +7,7 @@ from fastapi import (
 from app.security import verify_token
 from app.models.user import User
 from app.security import require_admin
+from app.rate_limit import rate_limit
 
 from app.database import (
     Base,
@@ -130,6 +131,7 @@ def cache_health():
 
 @app.get(
     "/admin/users",
+    dependencies=[Depends(rate_limit)],
     response_model=list[UserResponse]
 )
 def admin_get_users(
@@ -140,7 +142,13 @@ def admin_get_users(
 
     return crud.get_users(db)
 
-@app.post("/users", response_model=UserResponse)
+@app.post(
+    "/users",
+    response_model=UserResponse, 
+    dependencies=[Depends(rate_limit)]
+    )
+
+
 def create_user(
     user: UserCreate,
     db: Session = Depends(get_db)
@@ -154,6 +162,7 @@ def create_user(
 
 @app.get(
     "/users",
+    dependencies=[Depends(rate_limit)],
     response_model=list[UserResponse]
 )
 def get_users(
@@ -166,6 +175,7 @@ def get_users(
 
 @app.get(
     "/users/{user_id}",
+    dependencies=[Depends(rate_limit)],
     response_model=UserResponse
 )
 def get_user(
@@ -188,6 +198,7 @@ def get_user(
 
 @app.put(
     "/users/{user_id}",
+    dependencies=[Depends(rate_limit)],
     response_model=UserResponse
 )
 def update_user(
@@ -210,7 +221,9 @@ def update_user(
     )
 
 
-@app.delete("/users/{user_id}")
+@app.delete("/users/{user_id}",
+    dependencies=[Depends(rate_limit)]
+    )
 def delete_user(
     user_id: int,
     current_user: User = Depends(get_current_user),
@@ -231,7 +244,8 @@ def delete_user(
 
 @app.post(
     "/login",
-    response_model=Token
+    response_model=Token,
+    dependencies=[Depends(rate_limit)]
 )
 def login(
     user: UserLogin,
