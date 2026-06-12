@@ -110,10 +110,7 @@ async def log_requests(
 
     return response
 
-Base.metadata.create_all(bind=engine)
-
 Instrumentator().instrument(app).expose(app)
-
 
 @app.get("/")
 def root():
