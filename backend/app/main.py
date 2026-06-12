@@ -8,6 +8,9 @@ from app.security import verify_token
 from app.models.user import User
 from app.security import require_admin
 from app.rate_limit import rate_limit
+from app.logger import logger
+from fastapi import Request
+import time
 
 from app.database import (
     Base,
@@ -66,6 +69,31 @@ app = FastAPI(
     title="CloudPilot API",
     version="0.1.0"
 )
+
+@app.middleware("http")
+async def log_requests(
+    request: Request,
+    call_next
+):
+
+    start_time = time.time()
+
+    response = await call_next(request)
+
+    process_time = round(
+        time.time() - start_time,
+        4
+    )
+
+    logger.info(
+    f"IP={request.client.host} "
+    f"Method={request.method} "
+    f"Path={request.url.path} "
+    f"Status={response.status_code} "
+    f"Time={process_time}s"
+)
+
+    return response
 
 Base.metadata.create_all(bind=engine)
 
@@ -252,6 +280,10 @@ def login(
     db: Session = Depends(get_db)
 ):
 
+    logger.info(
+        f"Login attempt: {user.email}"
+    )
+
     db_user = crud.authenticate_user(
         db,
         user.email,
@@ -259,6 +291,10 @@ def login(
     )
 
     if not db_user:
+
+        logger.warning(
+            f"Failed login: {user.email}"
+        )
 
         raise HTTPException(
             status_code=401,
@@ -272,8 +308,11 @@ def login(
         }
     )
 
+    logger.info(
+        f"Successful login: {user.email}"
+    )
+
     return {
         "access_token": access_token,
         "token_type": "bearer"
     }
-
