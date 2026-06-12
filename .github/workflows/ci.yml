@@ -32,4 +32,8 @@ jobs:
       - name: Check Python Syntax
         run: |
           cd backend
-          python -m py_compile app/*.py
+          find app -name "*.py" -exec python -m py_compile {} \;
+
+      - name: Build Docker Image
+        run: |
+             docker build -t cloudpilot-api ./backend
