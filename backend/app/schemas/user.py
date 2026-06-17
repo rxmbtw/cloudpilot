@@ -1,5 +1,6 @@
 from pydantic import BaseModel
 
+
 class UserCreate(BaseModel):
 
     name: str
@@ -13,6 +14,7 @@ class UserResponse(BaseModel):
     name: str
     email: str
     role: str
+
     class Config:
         from_attributes = True
 
@@ -23,11 +25,13 @@ class UserLogin(BaseModel):
 
     password: str
 
+
 class Token(BaseModel):
 
     access_token: str
 
     token_type: str
+
 
 class TokenResponse(BaseModel):
 
@@ -36,6 +40,7 @@ class TokenResponse(BaseModel):
     refresh_token: str
 
     token_type: str
+
 
 class RefreshTokenRequest(BaseModel):
 

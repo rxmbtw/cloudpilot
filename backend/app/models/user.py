@@ -4,6 +4,7 @@ from sqlalchemy import String
 
 from app.database import Base
 
+
 class User(Base):
 
     __tablename__ = "users"
@@ -16,8 +17,4 @@ class User(Base):
 
     hashed_password = Column(String, nullable=False)
 
-    role = Column(
-        String,
-        default="user",
-        nullable=False
-)
+    role = Column(String, default="user", nullable=False)
