@@ -1,7 +1,16 @@
 import os
 from dotenv import load_dotenv
 
-load_dotenv()
+ENV = os.getenv("ENV", "dev")
+
+if ENV == "test":
+    load_dotenv(".env.test")
+
+elif ENV == "prod":
+    load_dotenv(".env.prod")
+
+else:
+    load_dotenv(".env.dev")
 
 POSTGRES_HOST = os.getenv("POSTGRES_HOST")
 POSTGRES_PORT = os.getenv("POSTGRES_PORT")

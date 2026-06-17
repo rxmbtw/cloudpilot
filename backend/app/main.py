@@ -285,7 +285,7 @@ def delete_user(
 @app.post(
     "/login",
     response_model=TokenResponse,
-    dependencies=[Depends(rate_limit)]
+    #dependencies=[Depends(rate_limit)]
 )
 def login(
     user: UserLogin,
