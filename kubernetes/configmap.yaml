@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: ConfigMap
+
+metadata:
+  name: cloudpilot-config
+
+data:
+  POSTGRES_HOST: cloudpilot-postgres
+  POSTGRES_PORT: "5432"
+  POSTGRES_DB: cloudpilot
+
+  REDIS_HOST: cloudpilot-redis
+  REDIS_PORT: "6379"
+
+  ALGORITHM: HS256
+  ACCESS_TOKEN_EXPIRE_MINUTES: "30"

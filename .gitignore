@@ -100,3 +100,4 @@ temp/
 *.db
 *.sqlite
 *.sqlite3
+minikube-linux-amd64

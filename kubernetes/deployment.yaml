@@ -1,0 +1,34 @@
+apiVersion: apps/v1
+kind: Deployment
+
+metadata:
+  name: cloudpilot-api
+
+spec:
+  replicas: 1
+
+  selector:
+    matchLabels:
+      app: cloudpilot-api
+
+  template:
+    metadata:
+      labels:
+        app: cloudpilot-api
+
+    spec:
+      containers:
+        - name: cloudpilot-api
+          image: cloudpilot-api:latest
+
+          envFrom:
+            - configMapRef:
+                name: cloudpilot-config
+
+            - secretRef:
+                name: cloudpilot-secret
+
+          imagePullPolicy: Never
+
+          ports:
+            - containerPort: 8000
