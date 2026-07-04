@@ -1,0 +1,67 @@
+replicaCount: 1
+
+image:
+  repository: cloudpilot-api
+  tag: latest
+  pullPolicy: Never
+
+service:
+  type: NodePort
+  port: 8000
+
+resources:
+  requests:
+    cpu: 100m
+    memory: 128Mi
+  limits:
+    cpu: 500m
+    memory: 256Mi
+
+configMapName: cloudpilot-config-helm
+secretName: cloudpilot-secret-helm
+
+config:
+  postgresHost: postgres-service
+  postgresPort: "5432"
+  postgresDatabase: cloudpilot
+
+  redisHost: redis-service
+  redisPort: "6379"
+
+  algorithm: HS256
+  accessTokenExpireMinutes: "30"
+
+postgres:
+  enabled: true
+
+  image:
+    repository: postgres
+    tag: "15-alpine"
+    pullPolicy: IfNotPresent
+
+  service:
+    name: postgres-service
+    port: 5432
+
+  database: cloudpilot
+
+  persistence:
+    existingClaim: postgres-pvc
+
+redis:
+  enabled: true
+
+  image:
+    repository: redis
+    tag: "7-alpine"
+    pullPolicy: IfNotPresent
+
+  service:
+    name: redis-service
+    port: 6379
+
+autoscaling:
+  enabled: true
+  minReplicas: 1
+  maxReplicas: 5
+  targetCPUUtilizationPercentage: 50

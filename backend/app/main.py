@@ -79,7 +79,11 @@ Instrumentator().instrument(app).expose(app)
 @app.get("/")
 def root():
 
-    return {"project": "CloudPilot", "status": "running", "version": "0.1.0"}
+    return {
+        "project": "CloudPilot",
+        "status": "running",
+        "version": "0.2.0" 
+    }
 
 
 @app.get("/health")

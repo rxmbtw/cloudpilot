@@ -1,0 +1,18 @@
+{{- if .Values.redis.enabled }}
+apiVersion: v1
+kind: Service
+
+metadata:
+  name: {{ .Values.redis.service.name }}
+
+spec:
+  type: ClusterIP
+
+  selector:
+    app: redis
+
+  ports:
+    - port: {{ .Values.redis.service.port }}
+      targetPort: {{ .Values.redis.service.port }}
+      protocol: TCP
+{{- end }}

@@ -101,3 +101,6 @@ temp/
 *.sqlite
 *.sqlite3
 minikube-linux-amd64
+
+# Local Helm secret values
+helm/cloudpilot/values-secret.yaml

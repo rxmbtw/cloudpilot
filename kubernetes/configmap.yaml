@@ -5,11 +5,11 @@ metadata:
   name: cloudpilot-config
 
 data:
-  POSTGRES_HOST: cloudpilot-postgres
+  POSTGRES_HOST: postgres-service
   POSTGRES_PORT: "5432"
   POSTGRES_DB: cloudpilot
 
-  REDIS_HOST: cloudpilot-redis
+  REDIS_HOST: redis-service
   REDIS_PORT: "6379"
 
   ALGORITHM: HS256
