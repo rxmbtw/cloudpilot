@@ -118,7 +118,7 @@ jobs:
         run: |
           docker build -t cloudpilot-api ./backend
 
-   publish-image:
+  publish-image:
     name: Build and Push Docker Image
 
     needs: test
