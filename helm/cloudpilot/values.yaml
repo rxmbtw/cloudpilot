@@ -1,9 +1,9 @@
 replicaCount: 1
 
 image:
-  repository: cloudpilot-api
-  tag: latest
-  pullPolicy: Never
+  repository: ghcr.io/rxmbtw/cloudpilot-api
+  tag: main
+  pullPolicy: Always
 
 service:
   type: NodePort

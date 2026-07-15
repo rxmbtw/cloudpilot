@@ -151,3 +151,21 @@ jobs:
             ghcr.io/rxmbtw/cloudpilot-api:main
           cache-from: type=gha
           cache-to: type=gha,mode=max
+
+  deploy:
+    name: Deploy to Minikube
+
+    needs: publish-image
+
+    runs-on: self-hosted
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Deploy with Helm
+        run: |
+          cd helm/cloudpilot
+          helm upgrade cloudpilot . -f values-secret.yaml
+          kubectl rollout restart deployment/cloudpilot
+          kubectl rollout status deployment/cloudpilot
