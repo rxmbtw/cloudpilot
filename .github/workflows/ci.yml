@@ -154,18 +154,22 @@ jobs:
 
   deploy:
     name: Deploy to Minikube
-
     needs: publish-image
-
     runs-on: self-hosted
 
     steps:
-      - name: Checkout Code
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+
+      - name: Create values-secret.yaml
+        run: |
+          cat > helm/cloudpilot/values-secret.yaml <<EOF
+          secrets:
+            postgresUser: "${{ secrets.POSTGRES_USER }}"
+            postgresPassword: "${{ secrets.POSTGRES_PASSWORD }}"
+            secretKey: "${{ secrets.SECRET_KEY }}"
+          EOF
 
       - name: Deploy with Helm
         run: |
           cd helm/cloudpilot
-          helm upgrade cloudpilot . -f values-secret.yaml
-          kubectl rollout restart deployment/cloudpilot
-          kubectl rollout status deployment/cloudpilot
+          helm upgrade --install cloudpilot . -f values-secret.yaml
