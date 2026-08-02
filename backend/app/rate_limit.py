@@ -15,15 +15,12 @@ def rate_limit(request: Request):
     current = redis_client.get(key)
 
     if current:
-
         current = int(current)
 
         if current >= REQUEST_LIMIT:
-
             raise HTTPException(status_code=429, detail="Rate limit exceeded")
 
         redis_client.incr(key)
 
     else:
-
         redis_client.setex(key, WINDOW, 1)

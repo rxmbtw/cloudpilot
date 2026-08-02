@@ -44,7 +44,6 @@ def get_current_user(
     user = db.query(User).filter(User.email == email).first()
 
     if not user:
-
         raise HTTPException(status_code=401, detail="User not found")
 
     return user
@@ -92,15 +91,12 @@ def health():
 def db_health():
 
     try:
-
         with engine.connect() as conn:
-
             conn.execute(text("SELECT 1"))
 
         return {"database": "connected"}
 
     except Exception as e:
-
         return {"database": "failed", "error": str(e)}
 
 
@@ -108,13 +104,11 @@ def db_health():
 def cache_health():
 
     try:
-
         redis_client.ping()
 
         return {"redis": "connected"}
 
     except Exception as e:
-
         return {"redis": "failed", "error": str(e)}
 
 
@@ -203,7 +197,6 @@ def login(user: UserLogin, db: Session = Depends(get_db)):
     db_user = crud.authenticate_user(db, user.email, user.password)
 
     if not db_user:
-
         logger.warning(f"Failed login: {user.email}")
 
         raise HTTPException(status_code=401, detail="Invalid credentials")

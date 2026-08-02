@@ -14,7 +14,6 @@ pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 def require_admin(user):
 
     if user.role != "admin":
-
         raise HTTPException(status_code=403, detail="Admin access required")
 
     return user
@@ -44,7 +43,6 @@ def create_access_token(data: dict):
 def verify_token(token: str):
 
     try:
-
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
 
         email = payload.get("sub")
@@ -55,7 +53,6 @@ def verify_token(token: str):
         return email
 
     except JWTError:
-
         raise HTTPException(status_code=401, detail="Invalid token")
 
 
@@ -73,32 +70,26 @@ def create_refresh_token(data: dict):
 def verify_access_token(token: str):
 
     try:
-
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
 
         if payload.get("type") != "access":
-
             raise HTTPException(status_code=401, detail="Invalid access token")
 
         return payload.get("sub")
 
     except JWTError:
-
         raise HTTPException(status_code=401, detail="Invalid access token")
 
 
 def verify_refresh_token(token: str):
 
     try:
-
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
 
         if payload.get("type") != "refresh":
-
             raise HTTPException(status_code=401, detail="Invalid refresh token")
 
         return payload.get("sub")
 
     except JWTError:
-
         raise HTTPException(status_code=401, detail="Invalid refresh token")
