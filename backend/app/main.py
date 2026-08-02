@@ -29,7 +29,8 @@ from app.cache import redis_client
 from sqlalchemy import text
 from sqlalchemy.orm import Session
 from prometheus_fastapi_instrumentator import Instrumentator
-
+from sqlalchemy.exc import SQLAlchemyError
+from redis.exceptions import RedisError
 from fastapi.security import OAuth2PasswordBearer
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
@@ -96,7 +97,7 @@ def db_health():
 
         return {"database": "connected"}
 
-    except Exception as e:
+    except SQLAlchemyError as e:
         return {"database": "failed", "error": str(e)}
 
 
@@ -108,7 +109,7 @@ def cache_health():
 
         return {"redis": "connected"}
 
-    except Exception as e:
+    except RedisError as e:
         return {"redis": "failed", "error": str(e)}
 
 
