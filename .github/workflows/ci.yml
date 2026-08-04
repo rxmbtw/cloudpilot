@@ -15,11 +15,9 @@ on:
 
 jobs:
   test:
-
     runs-on: ubuntu-latest
 
     services:
-
       postgres:
         image: postgres:15
 
@@ -32,7 +30,7 @@ jobs:
           - 5432:5432
 
         options: >-
-          --health-cmd pg_isready
+          --health-cmd "pg_isready -U cloudpilot"
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
@@ -50,7 +48,6 @@ jobs:
           --health-retries 5
 
     steps:
-
       - name: Checkout Code
         uses: actions/checkout@v4
 
@@ -69,7 +66,7 @@ jobs:
       - name: Run Ruff
         run: |
           cd backend
-          python -m ruff check . || true
+          python -m ruff check .
 
       - name: Check Formatting
         run: |
@@ -80,20 +77,20 @@ jobs:
         run: |
           cd backend
 
-          cat > .env.test <<'EOF'
-      POSTGRES_HOST=localhost
-      POSTGRES_PORT=5432
-      POSTGRES_DB=cloudpilot
-      POSTGRES_USER=cloudpilot
-      POSTGRES_PASSWORD=cloudpilot
+          cat > .env.test <<EOF
+          POSTGRES_HOST=localhost
+          POSTGRES_PORT=5432
+          POSTGRES_DB=cloudpilot
+          POSTGRES_USER=cloudpilot
+          POSTGRES_PASSWORD=cloudpilot
 
-      REDIS_HOST=localhost
-      REDIS_PORT=6379
+          REDIS_HOST=localhost
+          REDIS_PORT=6379
 
-      SECRET_KEY=test-secret-key
-      ALGORITHM=HS256
-      ACCESS_TOKEN_EXPIRE_MINUTES=30
-      EOF
+          SECRET_KEY=test-secret-key
+          ALGORITHM=HS256
+          ACCESS_TOKEN_EXPIRE_MINUTES=30
+          EOF
 
       - name: Check Python Syntax
         run: |
@@ -103,22 +100,39 @@ jobs:
       - name: Debug Environment
         env:
           ENV: test
+          POSTGRES_HOST: localhost
+          POSTGRES_PORT: "5432"
+          POSTGRES_DB: cloudpilot
+          POSTGRES_USER: cloudpilot
+          POSTGRES_PASSWORD: cloudpilot
+          REDIS_HOST: localhost
+          REDIS_PORT: "6379"
         run: |
           cd backend
 
-          python - <<EOF
-      from app.config import *
+          python <<EOF
+          from app.config import *
 
-      print("HOST =", POSTGRES_HOST)
-      print("PORT =", POSTGRES_PORT)
-      print("DB   =", POSTGRES_DB)
-      print("USER =", POSTGRES_USER)
-      EOF
-
+          print("=" * 40)
+          print("POSTGRES_HOST =", POSTGRES_HOST)
+          print("POSTGRES_PORT =", POSTGRES_PORT)
+          print("POSTGRES_DB   =", POSTGRES_DB)
+          print("POSTGRES_USER =", POSTGRES_USER)
+          print("REDIS_HOST    =", REDIS_HOST)
+          print("REDIS_PORT    =", REDIS_PORT)
+          print("=" * 40)
+          EOF
 
       - name: Run Database Migrations
         env:
           ENV: test
+          POSTGRES_HOST: localhost
+          POSTGRES_PORT: "5432"
+          POSTGRES_DB: cloudpilot
+          POSTGRES_USER: cloudpilot
+          POSTGRES_PASSWORD: cloudpilot
+          REDIS_HOST: localhost
+          REDIS_PORT: "6379"
         run: |
           cd backend
           alembic upgrade head
@@ -126,6 +140,13 @@ jobs:
       - name: Run Tests with Coverage
         env:
           ENV: test
+          POSTGRES_HOST: localhost
+          POSTGRES_PORT: "5432"
+          POSTGRES_DB: cloudpilot
+          POSTGRES_USER: cloudpilot
+          POSTGRES_PASSWORD: cloudpilot
+          REDIS_HOST: localhost
+          REDIS_PORT: "6379"
         run: |
           cd backend
           python -m pytest tests --cov=app --cov-report=term
@@ -170,7 +191,9 @@ jobs:
 
   deploy:
     name: Deploy to Minikube
+
     needs: publish-image
+
     runs-on: self-hosted
 
     steps:
@@ -188,4 +211,4 @@ jobs:
       - name: Deploy with Helm
         run: |
           cd helm/cloudpilot
-          helm upgrade --install cloudpilot . -f values-secret.yaml
+          helm upgrade --install cloudpilot . -f values-secret.yaml 
