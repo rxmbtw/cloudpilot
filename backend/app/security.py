@@ -1,11 +1,10 @@
-from passlib.context import CryptContext  # type: ignore[import]
-
 from datetime import datetime, timedelta, timezone
 
-from jose import JWTError, jwt
 from fastapi import HTTPException
+from jose import JWTError, jwt
+from passlib.context import CryptContext  # type: ignore[import]
 
-from app.config import SECRET_KEY, ALGORITHM, ACCESS_TOKEN_EXPIRE_MINUTES
+from app.config import ACCESS_TOKEN_EXPIRE_MINUTES, ALGORITHM, SECRET_KEY
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 

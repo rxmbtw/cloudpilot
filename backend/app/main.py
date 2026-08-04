@@ -1,37 +1,33 @@
-from fastapi import FastAPI, Depends, HTTPException
-
-from fastapi import Request
 import time
 
+from fastapi import Depends, FastAPI, HTTPException, Request
+from fastapi.security import OAuth2PasswordBearer
+from prometheus_fastapi_instrumentator import Instrumentator
+from redis.exceptions import RedisError
+from sqlalchemy import text
+from sqlalchemy.exc import SQLAlchemyError
+from sqlalchemy.orm import Session
+
+from app import crud
+from app.cache import redis_client
+from app.database import engine, get_db
+from app.logger import logger
+from app.models.user import User
+from app.rate_limit import rate_limit
+from app.schemas.user import (
+    RefreshTokenRequest,
+    TokenResponse,
+    UserCreate,
+    UserLogin,
+    UserResponse,
+)
 from app.security import (
-    verify_access_token,
-    verify_refresh_token,
     create_access_token,
     create_refresh_token,
+    require_admin,
+    verify_access_token,
+    verify_refresh_token,
 )
-
-from app.schemas.user import TokenResponse
-from app.schemas.user import RefreshTokenRequest
-
-
-from app.schemas.user import UserCreate, UserResponse, UserLogin
-from app import crud
-
-from app.models.user import User
-from app.security import require_admin
-
-from app.rate_limit import rate_limit
-from app.logger import logger
-
-
-from app.database import engine, get_db
-from app.cache import redis_client
-from sqlalchemy import text
-from sqlalchemy.orm import Session
-from prometheus_fastapi_instrumentator import Instrumentator
-from sqlalchemy.exc import SQLAlchemyError
-from redis.exceptions import RedisError
-from fastapi.security import OAuth2PasswordBearer
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
 

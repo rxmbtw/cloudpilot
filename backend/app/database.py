@@ -1,13 +1,12 @@
 from sqlalchemy import create_engine
-from sqlalchemy.orm import declarative_base
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import declarative_base, sessionmaker
 
 from app.config import (
-    POSTGRES_HOST,
-    POSTGRES_PORT,
     POSTGRES_DB,
-    POSTGRES_USER,
+    POSTGRES_HOST,
     POSTGRES_PASSWORD,
+    POSTGRES_PORT,
+    POSTGRES_USER,
 )
 
 DATABASE_URL = (

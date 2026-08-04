@@ -211,4 +211,4 @@ jobs:
       - name: Deploy with Helm
         run: |
           cd helm/cloudpilot
-          helm upgrade --install cloudpilot . -f values-secret.yaml 
+          helm upgrade --install cloudpilot . -f values-secret.yaml
