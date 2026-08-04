@@ -1,8 +1,20 @@
 import os
+from pathlib import Path
+
 from dotenv import load_dotenv
 
-# Load .env if present (mainly for local development)
-load_dotenv()
+BASE_DIR = Path(__file__).resolve().parent.parent
+
+ENV = os.getenv("ENV", "dev")
+
+if ENV == "test":
+    load_dotenv(BASE_DIR / ".env.test")
+
+elif ENV == "prod":
+    load_dotenv(BASE_DIR / ".env.prod")
+
+else:
+    load_dotenv(BASE_DIR / ".env.dev")
 
 POSTGRES_HOST = os.getenv("POSTGRES_HOST")
 POSTGRES_PORT = os.getenv("POSTGRES_PORT")
@@ -15,9 +27,10 @@ REDIS_HOST = os.getenv("REDIS_HOST")
 REDIS_PORT = os.getenv("REDIS_PORT")
 
 SECRET_KEY = os.getenv("SECRET_KEY")
-
 ALGORITHM = os.getenv("ALGORITHM")
 
-ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", 30))
+ACCESS_TOKEN_EXPIRE_MINUTES = int(
+    os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", 30)
+)
 
 REFRESH_TOKEN_EXPIRE_DAYS = 7

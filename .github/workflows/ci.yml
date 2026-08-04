@@ -80,25 +80,41 @@ jobs:
         run: |
           cd backend
 
-          cat > .env.test << EOF
-          POSTGRES_HOST=localhost
-          POSTGRES_PORT=5432
-          POSTGRES_DB=cloudpilot
-          POSTGRES_USER=cloudpilot
-          POSTGRES_PASSWORD=cloudpilot
+          cat > .env.test <<'EOF'
+      POSTGRES_HOST=localhost
+      POSTGRES_PORT=5432
+      POSTGRES_DB=cloudpilot
+      POSTGRES_USER=cloudpilot
+      POSTGRES_PASSWORD=cloudpilot
 
-          REDIS_HOST=localhost
-          REDIS_PORT=6379
+      REDIS_HOST=localhost
+      REDIS_PORT=6379
 
-          SECRET_KEY=test-secret-key
-          ALGORITHM=HS256
-          ACCESS_TOKEN_EXPIRE_MINUTES=30
-          EOF
+      SECRET_KEY=test-secret-key
+      ALGORITHM=HS256
+      ACCESS_TOKEN_EXPIRE_MINUTES=30
+      EOF
 
       - name: Check Python Syntax
         run: |
           cd backend
           find app -name "*.py" -exec python -m py_compile {} \;
+
+      - name: Debug Environment
+        env:
+          ENV: test
+        run: |
+          cd backend
+
+          python - <<EOF
+      from app.config import *
+
+      print("HOST =", POSTGRES_HOST)
+      print("PORT =", POSTGRES_PORT)
+      print("DB   =", POSTGRES_DB)
+      print("USER =", POSTGRES_USER)
+      EOF
+
 
       - name: Run Database Migrations
         env:
