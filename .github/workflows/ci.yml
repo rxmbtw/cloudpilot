@@ -66,9 +66,29 @@ jobs:
           pip install -r requirements-dev.txt
           pip install pytest
 
-      - name: Run Ruff
+      - name: Debug Ruff Environment
         run: |
           cd backend
+
+          echo "===== Python ====="
+          python --version
+
+          echo "===== Ruff ====="
+          ruff --version
+
+          echo "===== Working Directory ====="
+          pwd
+
+          echo "===== Git Commit ====="
+          git rev-parse HEAD
+
+          echo "===== Files ====="
+          find app -name "*.py" | sort
+
+          echo "===== Ruff Settings ====="
+          ruff check app --show-settings | head -100
+
+          echo "===== Ruff Check ====="
           ruff check app
 
       - name: Check Formatting
