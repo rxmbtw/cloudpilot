@@ -1,4 +1,4 @@
-ruff
-black
-pytest
-pytest-cov
+ruff==0.15.17
+black==25.1.0
+pytest==8.4.2
+pytest-cov==7.0.0

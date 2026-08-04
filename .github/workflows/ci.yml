@@ -62,34 +62,14 @@ jobs:
       - name: Install Dependencies
         run: |
           cd backend
+          python -m pip install --upgrade pip
           pip install -r requirements.txt
           pip install -r requirements-dev.txt
-          pip install pytest
 
-      - name: Debug Ruff Environment
+      - name: Run Ruff
         run: |
           cd backend
-
-          echo "===== Python ====="
-          python --version
-
-          echo "===== Ruff ====="
-          ruff --version
-
-          echo "===== Working Directory ====="
-          pwd
-
-          echo "===== Git Commit ====="
-          git rev-parse HEAD
-
-          echo "===== Files ====="
-          find app -name "*.py" | sort
-
-          echo "===== Ruff Settings ====="
-          ruff check app --show-settings | head -100
-
-          echo "===== Ruff Check ====="
-          ruff check app
+          python -m ruff check .
 
       - name: Check Formatting
         run: |
