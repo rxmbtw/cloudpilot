@@ -105,3 +105,6 @@ minikube-linux-amd64
 # Local Helm secret values
 helm/cloudpilot/values-secret.yaml
 .ruff_cache/
+
+# SSH keys
+ssh/*
