@@ -108,3 +108,4 @@ helm/cloudpilot/values-secret.yaml
 
 # SSH keys
 ssh/*
+backend.hcl
