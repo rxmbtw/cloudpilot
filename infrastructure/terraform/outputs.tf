@@ -21,3 +21,11 @@ output "ec2_public_ip" {
 output "ec2_public_dns" {
   value = aws_instance.cloudpilot_server.public_dns
 }
+
+output "instance_id" {
+  value = aws_instance.cloudpilot_server.id
+}
+
+output "app_url" {
+  value = "http://${aws_instance.cloudpilot_server.public_ip}"
+}
